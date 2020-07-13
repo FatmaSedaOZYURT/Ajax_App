@@ -1,0 +1,151 @@
+﻿@model List<ShipperViewModel>
+@{
+    ViewBag.Title = "Shippers";
+}
+
+<h2>Shippers</h2>
+
+<div class="form-group">
+    @Html.TextBox("CompanyName", "", new { @class = "form-control", placeholder = "Firma Adı" })
+</div>
+<div class="form-group">
+    @Html.TextBox("Phone", "", new { @class = "form-control", placeholder = "Telefon" })
+</div>
+<div class="form-group">
+    <button class="btn btn-success btnAdd">Kaydet</button>
+    <button class="btn btn-success btnUpdate">Güncelle</button>
+</div>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Shipper</th>
+            <th>&nbsp;</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (ShipperViewModel item in Model)
+        {
+            <tr>
+                <td>@item.CompanyName</td>
+                <td>@item.Phone</td>
+                <td><button class="btn btn-primary btnSelect" data-shipperID="@item.ShipperID">Seç</button></td>
+                <td><button class="btn btn-danger btnDelete" data-shipperID="@item.ShipperID">Sil</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+@section scripts{
+    <script>
+        $(".btnSelect").click(function () {
+            var shipperID = $(this).attr("data-shipperID");
+
+            $.ajax({
+                type: "GET",
+                url: "/Shippers/Select/" + shipperID,
+                success: function (data) {
+                    if (data == "error") {
+                        alert("Veri tabanında kayıt bulunamadı.");
+                    }
+                    else {
+                        $("#CompanyName").val(data.CompanyName);
+                        $("#Phone").val(data.Phone);
+                    }
+                }
+            });
+        });
+
+
+        $(".btnDelete").click(function () {
+            var shipperID = $(this).attr("data-shipperID");
+
+            $.ajax({
+                type: "GET",
+                url: "/Shippers/Delete/" + shipperID,
+                success: function (data) {
+                    if (data == "error") {
+                        alert("Veri tabanında kayıt bulunamadı.");
+                    }
+                    else {
+                        alert("Kayıt silindi.");
+                    }
+                }
+            });
+        });
+
+        $(".btnAdd").click(function () {
+
+            var shipper = {
+                "CompanyName": $("#CompanyName").val(),
+                "Phone": $("#Phone").val()
+            };
+
+            $.ajax({
+                type: "POST",
+                url: "/Shippers/Add",
+                data: shipper,
+                success: function (data) {
+                    if (data == "error") {
+                        alert("Veri tabanına veri eklenemedi.");
+                        Console.log(data);
+                    }
+                    else {
+                        alert("Kayıt eklendi.");
+                    }
+                }
+            });
+        });
+
+        $(".btnUpdate").click(function () {
+
+            var tempShipper =
+                {
+                    //"SupplierID" : id,
+                    "CompanyName": $("#CompanyName").val(),
+                    "Phone": $("#Phone").val()
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/Shippers/Update",
+                    data: tempShipper,
+                    success: function (data) {
+                        if (data == "error") {
+                            alert("Veri güncellenemedi.");
+                            Console.log(data);
+                        }
+                        else {
+                            alert("Veri güncellendi.");
+                        }
+                    }
+                });
+            @*if (@id == null) {
+                alert("Önce veri seçiniz.");
+            }
+            else {
+                var tempShipper =
+                {
+                    //"SupplierID" : @id,
+                    "CompanyName": $("#CompanyName").val(),
+                    "Phone": $("#Phone").val()
+                };
+                $.ajax({
+                    type: "POST",
+                    url: "/Shippers/Update",
+                    data: tempShipper,
+                    success: function (data) {
+                        if (data == "error") {
+                            alert("Veri güncellenemedi.");
+                            Console.log(data);
+                        }
+                        else {
+                            alert("Veri güncellendi.");
+                        }
+                    }
+                });
+            }*@
+
+        });
+
+
+    </script>
+}
